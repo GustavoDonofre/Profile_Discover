@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sorteiador de temas</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <style>
+        :root {
+            --ashes: #b7b4ae;
+            --light-charcoal: #726e68;
+            --dryad-black: #33312f;
+            --black-kite: #371e1e;
+            --existential-angst: #0A0A0A;
+        }
+
+        * {
+            box-sizing: border-box;
+            max-width: 100%;
+        }
+
+        html {
+            min-height: 100%;
+            background: var(--existential-angst);
+        }
+
+        h1,
+        h5,
+        p {
+            color: var(--ashes);
+        }
+
+        textarea {
+            resize: none;
+        }
+
+        textarea,
+        input {
+            background-color: var(--dryad-black) !important;
+            color: var(--ashes) !important;
+
+            border: 1px solid var(--light-charcoal) !important;
+        }
+
+        textarea:focus,
+        input:focus {
+            background-color: var(--dryad-black) !important;
+            color: var(--ashes) !important;
+
+            border-color: var(--ashes) !important;
+
+            box-shadow:
+                0 0 0 0.15rem rgba(183, 180, 174, 0.15) !important;
+        }
+
+        textarea::placeholder,
+        input::placeholder {
+            color: var(--light-charcoal);
+        }
+
+        .btn-ashes {
+            background-color: var(--ashes);
+            color: var(--existential-angst);
+
+            border: 1px solid var(--ashes);
+        }
+
+        .btn-ashes:hover {
+            background-color: #cbc8c2;
+            color: var(--existential-angst);
+        }
+
+
+        .btn-charcoal {
+            background-color: var(--light-charcoal);
+            color: var(--ashes);
+
+            border: 1px solid var(--light-charcoal);
+        }
+
+        .btn-charcoal:hover {
+            background-color: #858079;
+            color: #ffffff;
+        }
+
+
+        .btn-dryad {
+            background-color: var(--dryad-black);
+            color: var(--ashes);
+
+            border: 1px solid var(--light-charcoal);
+        }
+
+        .btn-dryad:hover {
+            background-color: #45423f;
+            color: #ffffff;
+        }
+
+
+        .btn-kite {
+            background-color: var(--black-kite);
+            color: var(--ashes);
+
+            border: 1px solid #542d2d;
+        }
+
+        .btn-kite:hover {
+            background-color: #4b2929;
+            color: #ffffff;
+        }
+
+
+        .btn-angst {
+            background-color: var(--existential-angst);
+            color: var(--ashes);
+
+            border: 1px solid var(--light-charcoal);
+        }
+
+        .btn-angst:hover {
+            background-color: var(--dryad-black);
+            color: #ffffff;
+        }
+
+
+        .btn-custom {
+            padding: 8px 20px;
+
+            border-radius: 6px;
+
+            transition:
+                background-color 0.25s ease,
+                color 0.25s ease,
+                border-color 0.25s ease,
+                transform 0.2s ease;
+        }
+
+        .btn-custom:hover {
+            transform: translateY(-1px);
+        }
+
+        .btn-custom:active {
+            transform: translateY(0);
+        }
+
+        #tema_resultado {
+            width: min(850px, 90vw);
+            height: 70px;
+
+            margin: 0 auto;
+
+            display: block;
+
+            font-size: 1.6rem;
+            font-weight: 600;
+
+            text-align: center;
+
+            background-color: var(--dryad-black) !important;
+            color: var(--ashes) !important;
+
+            border: 2px solid var(--ashes) !important;
+            border-radius: 10px;
+
+            box-shadow:
+                0 0 20px rgba(183, 180, 174, 0.12);
+        }
+
+        body {
+            min-height: 100vh;
+            margin: 0;
+            overflow-x: hidden;
+            background: transparent;
+            color: var(--ashes);
+        }
+
+        /* Fundo inteiro */
+
+        .background-carousel {
+            position: fixed;
+
+            inset: 0;
+
+            width: 100%;
+            height: 100vh;
+
+            overflow: hidden;
+            z-index: -2;
+
+            background-color: #1a1010;
+
+            box-shadow:
+                inset 0 0 180px rgba(0, 0, 0, 0.35);
+        }
+
+        .background-slide {
+            position: absolute;
+            inset: -40px;
+
+            width: calc(100% + 80px);
+            height: calc(100% + 80px);
+
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            opacity: 0;
+            filter:
+                blur(10px) brightness(0.65) saturate(0.90);
+
+            transform: scale(1.06);
+
+            transition:
+                opacity 3s ease-in-out,
+                transform 10s ease-in-out;
+
+            pointer-events: none;
+        }
+
+        .background-slide.active {
+            opacity: 1;
+
+            transform: scale(1.10);
+        }
+
+        .background-carousel::after {
+            content: "";
+
+            position: absolute;
+            inset: 0;
+
+            pointer-events: none;
+            background:
+                radial-gradient(ellipse at center,
+                    rgba(10, 8, 8, 0.05) 0%,
+                    rgba(10, 8, 8, 0.15) 50%,
+                    rgba(10, 8, 8, 0.38) 100%);
+
+            z-index: 2;
+        }
+
+        .background-carousel {
+            box-shadow:
+                inset 0 0 180px rgba(0, 0, 0, 0.85);
+        }
+
+        .flag-container {
+            position: relative;
+
+            width: min(1100px, 92vw);
+
+            min-height: calc(100vh + 355px + var(--altura-temas, 0px));
+
+            margin: 35px auto 0;
+
+            background:
+                linear-gradient(135deg,
+                    #4d2929 0%,
+                    #563131 22%,
+                    #522d2d 40%,
+                    #4b2929 58%,
+                    #432525 78%,
+                    #4d2929 100%);
+
+            clip-path: polygon(0% 0%,
+                    100% 0%,
+                    100% calc(100% - 45px),
+                    50% calc(100% - 220px),
+                    0% calc(100% - 75px));
+
+            box-shadow:
+                inset 0 0 80px rgba(20, 8, 8, 0.35),
+                inset 0 0 35px rgba(183, 180, 174, 0.055),
+                0 15px 45px rgba(0, 0, 0, 0.38);
+
+            padding:
+                clamp(35px, 5vh, 55px) clamp(25px, 5vw, 55px) clamp(145px, 16vh, 190px);
+            transform-origin: top center;
+
+            animation: bandeiraMovimento 10s ease-in-out infinite;
+
+            overflow: hidden;
+        }
+
+        .flag-container::before {
+            content: "";
+
+            position: absolute;
+
+            top: 16px;
+            right: 16px;
+            bottom: 16px;
+            left: 16px;
+
+            border: 1px solid rgba(183, 180, 174, 0.32);
+
+            box-shadow:
+                inset 0 0 0 4px rgba(20, 10, 10, 0.16),
+                inset 0 0 0 6px rgba(183, 180, 174, 0.08),
+                inset 0 0 30px rgba(0, 0, 0, 0.20);
+
+            pointer-events: none;
+
+            z-index: 1;
+        }
+
+        .flag-container::after {
+            content: "";
+
+            position: absolute;
+            inset: 0;
+
+            background:
+                linear-gradient(90deg,
+                    rgba(20, 8, 8, 0.22) 0%,
+                    rgba(255, 255, 255, 0.025) 20%,
+                    rgba(255, 255, 255, 0.055) 40%,
+                    rgba(0, 0, 0, 0.02) 50%,
+                    rgba(255, 255, 255, 0.045) 65%,
+                    rgba(0, 0, 0, 0.10) 82%,
+                    rgba(20, 8, 8, 0.22) 100%);
+
+            background-size: 220% 100%;
+
+            opacity: 0.65;
+
+            pointer-events: none;
+
+            z-index: 1;
+
+            animation: tecido 14s ease-in-out infinite;
+        }
+
+        .flag-container::after {
+            content: "";
+
+            position: absolute;
+
+            inset: 0;
+
+            background:
+                linear-gradient(90deg,
+
+                    rgba(20, 8, 8, 0.20) 0%,
+
+                    rgba(20, 8, 8, 0.08) 12%,
+
+                    rgba(255, 255, 255, 0.025) 24%,
+
+                    rgba(255, 255, 255, 0.050) 36%,
+
+                    rgba(0, 0, 0, 0.015) 50%,
+
+                    rgba(255, 255, 255, 0.045) 64%,
+
+                    rgba(0, 0, 0, 0.08) 78%,
+
+                    rgba(20, 8, 8, 0.20) 100%);
+
+            background-size: 220% 100%;
+
+            opacity: 0.72;
+
+            pointer-events: none;
+
+            z-index: 1;
+
+            animation:
+                tecido 12s ease-in-out infinite;
+        }
+
+        .flag-container>* {
+            position: relative;
+
+            z-index: 2;
+        }
+
+        .flag-container h1 {
+            margin-top: 0;
+        }
+
+        @keyframes bandeiraMovimento {
+
+            0% {
+                transform:
+                    perspective(1400px) rotateY(0deg) rotateZ(0deg);
+            }
+
+            25% {
+                transform:
+                    perspective(1400px) rotateY(0.35deg) rotateZ(0.04deg);
+            }
+
+            50% {
+                transform:
+                    perspective(1400px) rotateY(0deg) rotateZ(0deg);
+            }
+
+            75% {
+                transform:
+                    perspective(1400px) rotateY(-0.35deg) rotateZ(-0.04deg);
+            }
+
+            100% {
+                transform:
+                    perspective(1400px) rotateY(0deg) rotateZ(0deg);
+            }
+        }
+
+        @keyframes tecido {
+
+            0% {
+                background-position: 0% 0;
+                opacity: 0.60;
+            }
+
+            25% {
+                background-position: 35% 0;
+                opacity: 0.66;
+            }
+
+            50% {
+                background-position: 70% 0;
+                opacity: 0.72;
+            }
+
+            75% {
+                background-position: 35% 0;
+                opacity: 0.66;
+            }
+
+            100% {
+                background-position: 0% 0;
+                opacity: 0.60;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+
+            .flag-container,
+            .flag-container::after {
+                animation: none;
+            }
+
+            .background-slide {
+                transition: opacity 1s ease;
+                transform: scale(1.08);
+            }
+
+            .background-slide.active {
+                transform: scale(1.08);
+            }
+        }
+    </style>
+</head>
+
+<
+    <!-- FUNDO COM CARROSSEL -->
+    <div class="background-carousel">
+        <div class="background-slide active" style="background-image: url('img/fundo1.jpg');">
+        </div>
+
+        <div class="background-slide" style="background-image: url('img/fundo2.jpg');">
+        </div>
+
+        <div class="background-slide" style="background-image: url('img/fundo3.jpg');">
+        </div>
+
+        <div class="background-slide" style="background-image: url('img/fundo4.jpg');">
+        </div>
+
+        <div class="background-slide" style="background-image: url('img/fundo5.jpg');">
+        </div>
+
+        <div class="background-slide" style="background-image: url('img/fundo6.jpg');">
+        </div>
+
+        <div class="background-slide" style="background-image: url('img/fundo7.jpg');">
+        </div>
+    </div>
+
+    <div class="flag-container">
+
+        <div class="text-center">
+
+            <h1>Sorteiador de Temas</h1>
+
+
+            <div class="inputs-temas mt-5">
+
+                <div>
+                    <h5 for="sentimento">
+                        Digite vários sentimentos para os temas...
+                    </h5>
+
+                    <textarea class="form-control" id="sentimento" rows="5" placeholder="Exemplo:
+                        Alegria
+                        Solidão
+                        Medo
+                        Nostalgia">
+                </textarea>
+                </div>
+
+                <div>
+                    <h5 for="jogos">
+                        Digite vários jogos...
+                    </h5>
+
+                    <textarea class="form-control" id="jogos" rows="5" placeholder="Exemplo:
+                        Minecraft
+                        Dark Souls
+                        GTA
+                        The Sims">
+                </textarea>
+                </div>
+
+            </div>
+
+
+
+            <div class="resultado-area" style="margin: 15px;">
+
+                <div class="sorteio-area mb-2">
+                    <button class="btn btn-custom btn-ashes" onclick="sortearTema()">
+                        SORTEAR
+                    </button>
+                </div>
+
+                <input class="form-control" id="tema_resultado" readonly>
+
+            </div>
+
+
+
+            <div class="acoes-tema mb-3">
+
+                <button class="btn btn-custom btn-kite" onclick="recusarTema()">
+                    RECUSAR TEMA
+                </button>
+
+                <button class="btn btn-custom btn-charcoal" onclick="aprovarTema()">
+                    APROVAR TEMA
+                </button>
+
+            </div>
+
+
+ -->
+            <div class="aprovados-area">
+
+                <h5>Temas Aprovados</h5>
+
+                <p id="temas_aprovados" class="mt-3">
+                </p>
+
+                <button class="btn btn-custom btn-dryad" onclick="exportarTXT()">
+                    EXPORTAR TXT
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+</body>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+    crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script>
+
+    $(document).ready(function () {
+        carregarDados();
+        carregarTemasAprovados();
+        iniciarCarrossel();
+    });
+
+    $("#sentimento, #jogos").on("input", function () {
+        salvarDados();
+    });
+
+    function sortearTema() {
+        let sentimentos = $("#sentimento").val()
+            .split("\n")
+            .map(item => item.trim())
+            .filter(item => item !== "");
+
+        let jogos = $("#jogos").val()
+            .split("\n")
+            .map(item => item.trim())
+            .filter(item => item !== "");
+
+        if (sentimentos.length === 0 || jogos.length === 0) {
+            alert("Digite pelo menos um sentimento e um jogo!");
+            return;
+        }
+
+        let sentimentoSorteado = sentimentos[
+            Math.floor(Math.random() * sentimentos.length)
+        ];
+
+        let jogoSorteado = jogos[
+            Math.floor(Math.random() * jogos.length)
+        ];
+
+        $("#tema_resultado").val(
+            jogoSorteado + " + " + sentimentoSorteado
+        );
+    }
+
+    function recusarTema() {
+        let tema = $("#tema_resultado").val("");
+    }
+
+    function aprovarTema() {
+
+        let tema = $("#tema_resultado").val().trim();
+
+        if (tema === "") {
+            mostrarErro("Não existe nenhum tema para aprovar!");
+            return;
+        }
+
+        let temasSalvos = JSON.parse(
+            localStorage.getItem("temasAprovados")
+        ) || [];
+
+        let temaJaExiste = temasSalvos.some(
+            item => item.tema === tema
+        );
+
+        if (temaJaExiste) {
+            mostrarErro("Esse tema já foi aprovado anteriormente!");
+            return;
+        }
+
+        let novoTema = {
+            tema: tema,
+            data: new Date().toLocaleString("pt-BR")
+        };
+
+        temasSalvos.push(novoTema);
+
+        localStorage.setItem(
+            "temasAprovados",
+            JSON.stringify(temasSalvos)
+        );
+
+        carregarTemasAprovados();
+        $("#tema_resultado").val("")
+    }
+
+    function exportarTXT() {
+
+        let temasSalvos = JSON.parse(
+            localStorage.getItem("temasAprovados")
+        ) || [];
+
+        if (temasSalvos.length === 0) {
+            mostrarErro("Não existem temas aprovados para exportar!");
+            return;
+        }
+
+        let texto = "TEMAS APROVADOS\n";
+        texto += "========================\n\n";
+
+        temasSalvos.forEach((item, index) => {
+            texto += `${index + 1}. ${item.tema}\n`;
+            texto += `   Data: ${item.data}\n\n`;
+        });
+
+        let arquivo = new Blob(
+            [texto],
+            { type: "text/plain;charset=utf-8" }
+        );
+
+        let url = URL.createObjectURL(arquivo);
+
+        let link = document.createElement("a");
+        link.href = url;
+        link.download = "temas-aprovados.txt";
+
+        link.click();
+
+        URL.revokeObjectURL(url);
+    }
+
+    function salvarDados() {
+        localStorage.setItem(
+            "sentimentos",
+            $("#sentimento").val()
+        );
+
+        localStorage.setItem(
+            "jogos",
+            $("#jogos").val()
+        );
+    }
+
+    function carregarDados() {
+        $("#sentimento").val(
+            localStorage.getItem("sentimentos") || ""
+        );
+
+        $("#jogos").val(
+            localStorage.getItem("jogos") || ""
+        );
+    }
+
+    function carregarTemasAprovados() {
+
+        let temasSalvos = JSON.parse(
+            localStorage.getItem("temasAprovados")
+        ) || [];
+
+        let texto = "";
+
+        temasSalvos.forEach((item, index) => {
+            texto += `${index + 1}. ${item.tema}<br>`;
+        });
+
+        $("#temas_aprovados").html(texto);
+
+        const flag = document.querySelector(".flag-container");
+
+        if (flag) {
+
+            const alturaPorTema = 10;
+
+            const alturaExtra =
+                temasSalvos.length * alturaPorTema;
+
+            flag.style.setProperty(
+                "--altura-temas",
+                `${alturaExtra}px`
+            );
+        }
+    }
+
+    function iniciarCarrossel() {
+
+        const slides = document.querySelectorAll(".background-slide");
+
+        if (slides.length <= 1) {
+            return;
+        }
+
+        slides.forEach(slide => {
+            slide.classList.remove("active");
+        });
+
+        let slideAtual = Math.floor(
+            Math.random() * slides.length
+        );
+
+        slides[slideAtual].classList.add("active");
+
+        function sortearProximoSlide() {
+
+            let proximoSlide;
+
+            do {
+                proximoSlide = Math.floor(
+                    Math.random() * slides.length
+                );
+            } while (proximoSlide === slideAtual);
+
+            slides[slideAtual].classList.remove("active");
+            slides[proximoSlide].classList.add("active");
+
+            slideAtual = proximoSlide;
+        }
+
+        setInterval(sortearProximoSlide, 7000);
+    }
+</script>
+
+</html>
